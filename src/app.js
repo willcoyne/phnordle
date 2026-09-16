@@ -1,4 +1,4 @@
-import { tokenize } from './ipa.js';
+import { tokenize, PHONEMES } from './ipa.js';
 
 const ROWS = 6;
 const EPOCH = Date.UTC(2026, 0, 1);            // day 0 of the Phnordle calendar
@@ -8,14 +8,14 @@ const EPOCH = Date.UTC(2026, 0, 1);            // day 0 of the Phnordle calendar
 const EG = {
   p: 'pie', b: 'bee', t: 'tea', d: 'do', k: 'key', 'ɡ': 'go', 'tʃ': 'chew', 'dʒ': 'jaw',
   f: 'fee', v: 'view', 'θ': 'thin', 'ð': 'this', s: 'see', z: 'zoo', 'ʃ': 'shoe', 'ʒ': 'vision', h: 'he',
-  m: 'me', n: 'no', 'ŋ': 'sing', 'ɫ': 'low', 'ɹ': 'red', 'ʍ': 'which', w: 'we', j: 'yes',
+  m: 'me', n: 'no', 'ŋ': 'sing', 'ɾ': 'batter', 'ɫ': 'low', 'ɹ': 'red', 'ʍ': 'which', w: 'we', j: 'yes',
   i: 'see', 'ɪ': 'sit', 'ɛ': 'bed', 'æ': 'cat', 'ə': 'sofa', 'ʌ': 'cup', 'ɝ': 'bird', u: 'too', 'ʊ': 'book', 'ɔ': 'thought', 'ɑ': 'father',
   'eɪ': 'day', 'oʊ': 'go', 'aɪ': 'my', 'aʊ': 'now', 'ɔɪ': 'boy',
 };
 export const KEY_ROWS = [
   ['p', 'b', 't', 'd', 'k', 'ɡ', 'tʃ', 'dʒ'],
   ['f', 'v', 'θ', 'ð', 's', 'z', 'ʃ', 'ʒ', 'h'],
-  ['m', 'n', 'ŋ', 'ɫ', 'ɹ', 'ʍ', 'w', 'j'],
+  ['m', 'n', 'ŋ', 'ɾ', 'ɫ', 'ɹ', 'ʍ', 'w', 'j'],
   ['i', 'ɪ', 'ɛ', 'æ', 'ə', 'ʌ', 'ɝ', 'u', 'ʊ', 'ɔ', 'ɑ'],
   ['eɪ', 'oʊ', 'aɪ', 'aʊ', 'ɔɪ'],
 ];
@@ -31,6 +31,8 @@ export const CONS_GRID = [
   ['Fricative', 0, ['f', 'v'], ['θ', 'ð'], ['s', 'z'], ['ʃ', 'ʒ'], 0, 0, ['h', 0]],
   ['Affricate', 0, 0, 0, 0, ['tʃ', 'dʒ'], 0, 0, 0],
   ['Nasal', [0, 'm'], 0, 0, [0, 'n'], 0, 0, [0, 'ŋ'], 0],
+  // Not on the consonant chart, but the cheat sheet has it and the game needs it.
+  ['Flap', 0, 0, 0, [0, 'ɾ'], 0, 0, 0, 0],
   ['Lateral Liquid', 0, 0, 0, [0, 'ɫ'], 0, 0, 0, 0],
   ['Retroflex Liquid', 0, 0, 0, [0, 'ɹ'], 0, 0, 0, 0],
   ['Glide', ['ʍ', 'w'], 0, 0, 0, 0, [0, 'j'], 0, 0],
@@ -44,6 +46,30 @@ export const VPOS = {
 export const DIPHS = [
   ['eɪ', [11, 48], 'ɪ'], ['aɪ', [67, 88], 'ɪ'], ['ɔɪ', [90, 56], 'ɪ'],
   ['oʊ', [93, 40], 'ʊ'], ['aʊ', [86, 88], 'ʊ'],
+];
+
+/* "IPA cheat sheet.pdf", transcribed: symbol, its example word, and the name the
+   sheet gives it where it gives one. Two symbols differ from the sheet on purpose:
+   ɫ stands in for its l, because ipa-dict writes every /l/ dark and a tile has to
+   match what the game reveals, and ɝ is not on the sheet at all but is a key here.
+   ʔ is on the sheet with no key — see the note in the dialog. */
+export const CHEAT = [
+  ['Consonants', [
+    ['p', 'part'], ['b', 'bat'], ['t', 'stop'], ['d', 'adapt'], ['k', 'scape'], ['ɡ', 'bigger'],
+    ['ʔ', 'uh oh', 'Glottal Stop'], ['f', 'fish'], ['v', 'venture'], ['θ', 'theta', 'Theta'],
+    ['ð', 'this', 'Eth'], ['s', 'snake'], ['z', 'zebra'], ['ʃ', 'Shawn', 'Esh'],
+    ['ʒ', 'garage', 'Ezh'], ['h', 'hello'], ['tʃ', 'church'], ['dʒ', 'judge'],
+    ['ɾ', 'batter', 'Flap'], ['m', 'month'], ['n', 'banner'], ['ŋ', 'singing', 'Engma'],
+    ['ɫ', 'light'], ['ɹ', 'ring'], ['ʍ', 'whale'], ['w', 'willow'], ['j', 'yay'],
+  ]],
+  ['Vowels', [
+    ['i', 'seek'], ['ɪ', 'hit'], ['ɛ', 'set', 'Epsilon'], ['æ', 'hat', 'Ash'],
+    ['ə', 'sofa', 'Schwa'], ['ʌ', 'bus', 'Wedge'], ['ɝ', 'bird'], ['u', 'boot'],
+    ['ʊ', 'hood'], ['ɔ', 'awesome', 'Open O'], ['ɑ', 'father'],
+  ]],
+  ['Diphthongs', [
+    ['eɪ', 'late'], ['aɪ', 'bite'], ['ɔɪ', 'toy'], ['oʊ', 'boat'], ['aʊ', 'out'],
+  ]],
 ];
 
 const $ = id => document.getElementById(id);
@@ -179,7 +205,9 @@ function consChart(best) {
   g.appendChild(el('div', 'ccorner'));
   g.appendChild(el('div', 'ctitle', 'Place of Articulation'));
   for (const name of PLACES) g.appendChild(el('div', 'chead', name));
-  g.appendChild(el('div', 'caxis', 'Manner of Articulation'));
+  const axis = el('div', 'caxis', 'Manner of Articulation');
+  axis.style.gridRow = 'span ' + CONS_GRID.length;   // derived, or adding a manner shifts the last row
+  g.appendChild(axis);
   for (const [manner, ...places] of CONS_GRID) {
     g.appendChild(el('div', 'clabel', manner));
     for (const pair of places) {
@@ -301,6 +329,23 @@ function tabs(opts, active, onpick) {
     box.appendChild(b);
   }
   return box;
+}
+
+/** The cheat sheet never changes, so it is built once. */
+function buildCheat() {
+  const body = $('cheat-body');
+  for (const [group, rows] of CHEAT) {
+    body.appendChild(el('h3', null, group));
+    const table = el('div', 'sheet');
+    for (const [sym, eg, name] of rows) {
+      const row = el('div', PHONEMES.includes(sym) ? 'srow' : 'srow dead');
+      row.appendChild(el('span', 'ssym', sym));
+      row.appendChild(el('span', 'seg', '“' + eg + '”'));
+      row.appendChild(el('span', 'sname', name || ''));
+      table.appendChild(row);
+    }
+    body.appendChild(table);
+  }
 }
 
 function renderHint() {
@@ -452,6 +497,9 @@ function boot([commonText, allText]) {
     saveDaily();
     render();
   };
+  buildCheat();
+  $('big-hint-btn').onclick = () => $('cheat').showModal();
+  $('cheat-close').onclick = () => $('cheat').close();
   $('help-btn').onclick = () => $('help').showModal();
   $('help-close').onclick = () => $('help').close();
   document.addEventListener('keydown', e => {

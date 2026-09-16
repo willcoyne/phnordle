@@ -49,7 +49,7 @@ header {
   gap:8px; padding:8px 12px; border-bottom:1px solid var(--line);
 }
 h1 { margin:0; font-size:28px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
-.icon-btn, #hint-btn, #help-close, #modes button, select {
+.icon-btn, #hint-btn, #big-hint-btn, #help-close, #cheat-close, #modes button, select {
   font:inherit; color:var(--fg); background:transparent; border:1px solid var(--line);
   border-radius:4px; padding:4px 10px; cursor:pointer;
 }
@@ -129,7 +129,7 @@ select { background:var(--bg); }
   display:flex; align-items:center; justify-content:center; text-align:center; padding:2px 1px;
 }
 .caxis {
-  grid-row:span 7; writing-mode:vertical-rl; transform:rotate(180deg);
+  writing-mode:vertical-rl; transform:rotate(180deg);
   display:flex; align-items:center; justify-content:center;
   font-size:10px; font-weight:700; letter-spacing:.04em; padding:0 2px;
 }
@@ -143,6 +143,17 @@ select { background:var(--bg); }
 .quad svg { position:absolute; inset:0; width:100%; height:100%; color:var(--muted); }
 .quad .key, .qghost { position:absolute; transform:translate(-50%,-50%); }
 .qghost { font-size:20px; font-weight:700; color:var(--muted); }
+
+#cheat { max-width:560px; }
+#cheat-body h3 {
+  margin:12px 0 4px; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);
+}
+.sheet { display:grid; grid-template-columns:repeat(auto-fill, minmax(168px, 1fr)); gap:1px 10px; }
+.srow { display:grid; grid-template-columns:34px 1fr auto; align-items:baseline; gap:4px; font-size:12px; }
+.srow.dead { opacity:.45; }
+.ssym { font-size:16px; font-weight:700; text-align:center; }
+.seg { color:var(--muted); }
+.sname { font-size:10px; color:var(--muted); }
 
 dialog { max-width:440px; border:1px solid var(--line); background:var(--bg); color:var(--fg); border-radius:8px; padding:20px; }
 dialog::backdrop { background:#0009; }

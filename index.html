@@ -32,12 +32,25 @@
   <span id="sub"></span>
   <label id="spell-toggle" hidden><input type="checkbox" id="spell"> Show spelling</label>
   <button type="button" id="hint-btn" hidden>Hint</button>
+  <button type="button" id="big-hint-btn">Big hint</button>
 </div>
 
 <div id="stats" hidden></div>
 <div id="board" role="grid" aria-label="Guesses"></div>
 <div id="msg" role="status" aria-live="polite"></div>
 <div id="keyboard"></div>
+
+<dialog id="cheat">
+  <h2>IPA cheat sheet</h2>
+  <div id="cheat-body"></div>
+  <p class="credit">Every sound the game uses, with the name the cheat sheet gives it.
+     Greyed rows have no key: <span class="ex">ʔ</span> is on the sheet, but American
+     dictionaries do not transcribe the glottal stop in ordinary words, so no word could
+     use it. Two keys differ from the sheet — <span class="ex">ɫ</span> is its
+     <span class="ex">l</span>, written dark as the source dictionary writes it, and
+     <span class="ex">ɝ</span> is the source dictionary's r-coloured vowel.</p>
+  <button type="button" id="cheat-close">Close</button>
+</dialog>
 
 <dialog id="help">
   <h2>How to play</h2>
@@ -55,9 +68,13 @@
   <p>Two symbols follow the chart rather than the source dictionary: <span class="ex">ʌ</span>
      is the stressed vowel of “cup”, which the dictionary writes as <span class="ex">ə</span>,
      and <span class="ex">ʍ</span> is the voiceless <span class="ex">w</span> of “which”,
-     which it writes as <span class="ex">hw</span>. The chart's glottal stop
+     which it writes as <span class="ex">hw</span>, and <span class="ex">ɾ</span> is the
+     tapped <span class="ex">t</span> of “water”, which it writes as a plain
+     <span class="ex">t</span>. The chart's glottal stop
      <span class="ex">ʔ</span> has no key: American dictionaries do not transcribe it in
      ordinary words, so no word could ever use it.</p>
+  <p><b>Big hint</b> opens the cheat sheet: every sound with an example word and the name
+     it goes by.</p>
   <p class="credit">Pronunciations from
      <a href="https://github.com/open-dict-data/ipa-dict" target="_blank" rel="noopener">open-dict-data/ipa-dict</a>
      (MIT). Word frequencies from

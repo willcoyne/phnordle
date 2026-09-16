@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { tokenize, resolve, PHONEMES } from '../src/ipa.js';
-import { score, dailyEntry, KEY_ROWS, CONS_GRID, VPOS, DIPHS } from '../src/app.js';
+import { score, dailyEntry, KEY_ROWS, CONS_GRID, VPOS, DIPHS, CHEAT } from '../src/app.js';
 
 // --- tokenizer ---
 assert.deepEqual(tokenize('/ˈkæt/'), ['k', 'æ', 't']);
@@ -25,6 +25,15 @@ assert.equal(resolve('/ˈsoʊfə/', 'sofa'), '/ˈsoʊfə/', 'a mark does not rea
 // hw is ʍ in the wh- words and two sounds in the borrowings that merely look alike.
 assert.equal(resolve('/ˈhwɪtʃ/', 'which'), '/ˈʍɪtʃ/');
 assert.equal(resolve('/ˈhwæŋ/', 'huang'), '/ˈhwæŋ/', 'hua- and hwa- borrowings keep h + w');
+// The flap: a t or d tapped between a vowel and an unstressed vowel.
+assert.equal(resolve('/ˈwɔtɝ/', 'water'), '/ˈwɔɾɝ/');
+assert.equal(resolve('/ˈmɛdəɫ/', 'medal'), '/ˈmɛɾəɫ/', 'a d taps too');
+assert.equal(resolve('/ˈpɑɹti/', 'party'), '/ˈpɑɹɾi/', 'a preceding ɹ still taps');
+assert.equal(resolve('/ˈɛdətɝ/', 'editor'), '/ˈɛɾəɾɝ/', 'two taps in one word');
+assert.equal(resolve('/əˈtæk/', 'attack'), '/əˈtæk/', 'not before a stressed vowel');
+assert.equal(resolve('/ˈwɪntɝ/', 'winter'), '/ˈwɪntɝ/', 'not after a nasal');
+assert.equal(resolve('/ˈbətən/', 'button'), '/ˈbʌtən/', 'glottalised before a syllabic n, not tapped');
+assert.equal(resolve('/ˈtɛn/', 'ten'), '/ˈtɛn/', 'not word-initial');
 
 // --- marking ---
 const m = (g, a) => score(g.split(' '), a.split(' ')).join('');
@@ -78,6 +87,10 @@ for (const f of ['data/common.txt', 'data/all.txt']) {
 // Both layouts must offer every phoneme exactly once, or a word becomes untypeable.
 const cover = keys => assert.deepEqual([...keys].sort(), [...PHONEMES].sort());
 cover(KEY_ROWS.flat());
+// The cheat sheet is the reference the Big hint shows, so it has to list every key.
+const sheet = CHEAT.flatMap(([, rows]) => rows.map(r => r[0]));
+for (const p of PHONEMES) assert.ok(sheet.includes(p), p + ' is a key but not on the cheat sheet');
+assert.ok(sheet.includes('ʔ'), 'the sheet keeps ʔ, which has no key');
 const consKeys = CONS_GRID.flatMap(([, ...places]) => places.flatMap(pair => pair || [])).filter(Boolean);
 cover([...consKeys, ...Object.keys(VPOS), ...DIPHS.map(d => d[0])]);
 for (const [, , target] of DIPHS) assert.ok(VPOS[target], target + ' has no position to glide to');

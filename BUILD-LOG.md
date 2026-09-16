@@ -230,8 +230,9 @@ favicon to clear a 404.
 - Conservative on some American pronunciations: `what` is `/ˈʍʌt/`, `news` is `/ˈnjuz/`.
 - `ɫ` (dark L) for every /l/, where the chart writes plain `l`. Same phoneme, and the tile
   has to match what the game reveals, so the dictionary's spelling wins.
-- `ə` covered both /ə/ and /ʌ/, and `ʍ` was written out as `hw`. `resolve()` in `src/ipa.js`
-  undoes both at build time — see section 11.
+- `ə` covered both /ə/ and /ʌ/, `ʍ` was written out as `hw`, and the flap was left as a
+  plain `t` or `d`. `resolve()` in `src/ipa.js` undoes all three at build time — see
+  section 11.
 - A few lowercase proper nouns (`sony`, `google`) ride in on the frequency list.
 - `tʃ`/`dʒ` are always read as affricates, so *courtship* tokenises its `t`+`ʃ` as one
   tile. Rare enough to leave alone.
@@ -283,7 +284,7 @@ no sensible narrow form.
 
 ## 11. Making every chart symbol playable
 
-The chart showed three symbols the game could not use. Two were recoverable from the
+The two reference charts between them showed four symbols the game could not use. Two were recoverable from the
 dictionary already in the repo, so no new word list was needed:
 
 - **`ʌ`** — ipa-dict writes the stressed vowel of *cup* as `ə`, which is the usual analysis
@@ -294,12 +295,28 @@ dictionary already in the repo, so no new word list was needed:
   with *wh*, which leaves the `hua-`/`hwa-` borrowings (*huang*, *huachuca*) as a genuine
   h + w. 266 words in the guess list, though the short ones (*which*, *when*, *what*) now
   fall under the four-phoneme floor, since merging the two tiles into one shortened them.
+- **`ɾ`** — the cheat sheet's Flap, which ipa-dict leaves as a plain `t` or `d`. General
+  American taps it between a vowel (or `ɹ`) and an unstressed vowel, so *water*, *party*,
+  *metal* and *editor* tap while *attack* (stressed), *winter* (after a nasal) and *ten*
+  (initial) do not. Before a syllabic n the stop glottalises rather than taps, which is why
+  *button* is excluded but *bottom* is not — the self-check caught that one. 8,284 words.
 - **`ʔ`** — not recoverable from any word list. See section 9.
 
 Both rules live in `resolve()`, applied by the build, so `data/` holds exactly what the game
 tiles and reveals — the tiles cannot disagree with the transcription underneath them. The
 self-check now asserts both directions: no word uses a symbol that is not a key, and no key
 is unreachable by every word.
+
+## 12. Big hint and the cheat sheet
+
+`IPA cheat sheet.pdf` is transcribed into `CHEAT` in `src/app.js` and rendered into a dialog
+by the **Big hint** button beside Hint — symbol, example word, and the name the sheet gives
+it (Theta, Esh, Engma, Wedge). Rendered rather than shipped as the PDF: the deploy publishes
+only what the game loads, and a 600 KB scan does not reflow on a phone or follow the theme.
+
+Unlimited and available in every mode. It reveals nothing about the answer, so rationing it
+would only mean losing the reference mid-word. The self-check asserts the sheet lists every
+key, so a new phoneme cannot be added without documenting it.
 
 ## Running it
 
