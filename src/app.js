@@ -129,6 +129,8 @@ function render() {
   }
   renderKeys();
   renderStats();
+  renderHint();
+  showSub();
 }
 
 function renderKeys() {
@@ -276,6 +278,12 @@ function tabs(opts, active, onpick) {
   return box;
 }
 
+function renderHint() {
+  const b = $('hint-btn');
+  b.disabled = S.hinted;
+  b.title = S.hinted ? 'Hint used — the word is shown above the board' : 'Reveal the word, not its transcription';
+}
+
 function renderStats() {
   const box = $('stats');
   if (S.mode === 'classic') { box.hidden = true; return; }
@@ -291,11 +299,13 @@ function renderStats() {
 
 function say(html) { $('msg').innerHTML = html; }
 
+// Derived from state on every render, so the revealed word survives a guess,
+// a finished game and a reload — #msg is transient and gets overwritten.
 function showSub() {
-  const spell = $('spell').checked && S.mode !== 'classic';
-  $('sub').textContent = S.mode === 'classic'
-    ? 'Phnordle #' + S.day + ' — ' + S.entry.ph.length + ' sounds'
-    : S.entry.ph.length + ' sounds' + (spell ? ' — “' + S.entry.word + '”' : '');
+  const reveal = S.mode === 'classic' ? S.hinted : $('spell').checked;
+  $('sub').textContent = (S.mode === 'classic' ? 'Phnordle #' + S.day + ' — ' : '')
+    + S.entry.ph.length + ' sounds'
+    + (reveal ? ' — “' + S.entry.word + '”' : '');
 }
 
 /* ---------- play ---------- */
@@ -355,7 +365,6 @@ function start(entry) {
   S.done = false;
   S.hinted = false;
   say('');
-  showSub();
   render();
 }
 
@@ -370,7 +379,6 @@ function loadDaily() {
   if (!saved || saved.word !== S.entry.word) return;
   for (const ph of saved.rows) S.rows.push({ ph, res: score(ph, S.entry.ph) });
   S.hinted = saved.hinted;
-  if (S.hinted) $('hint-btn').disabled = true;
   const last = S.rows[S.rows.length - 1];
   const solved = !!last && last.res.every(r => r === 'g');
   if (solved || S.rows.length === ROWS) finish(solved);
@@ -382,7 +390,6 @@ function setMode(mode) {
   S.mode = mode;
   for (const b of $('modes').children) b.classList.toggle('active', b.dataset.mode === mode);
   $('hint-btn').hidden = mode !== 'classic';
-  $('hint-btn').disabled = false;
   $('spell-toggle').hidden = mode === 'classic';
   store.set('mode', mode);
 
@@ -417,9 +424,8 @@ function boot([commonText, allText]) {
   $('spell').onchange = showSub;
   $('hint-btn').onclick = () => {
     S.hinted = true;
-    $('hint-btn').disabled = true;
-    say('<span class="reveal">The word is “' + S.entry.word + '”</span>');
     saveDaily();
+    render();
   };
   $('help-btn').onclick = () => $('help').showModal();
   $('help-close').onclick = () => $('help').close();
