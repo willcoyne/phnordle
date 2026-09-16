@@ -6,8 +6,19 @@
 // so greedy longest-match is required, not optional.
 export const DIGRAPHS = ['eɪ', 'oʊ', 'aɪ', 'aʊ', 'ɔɪ', 'tʃ', 'dʒ'];
 
-export const VOWELS = ['i', 'ɪ', 'ɛ', 'æ', 'ə', 'ɝ', 'u', 'ʊ', 'ɔ', 'ɑ', 'eɪ', 'oʊ', 'aɪ', 'aʊ', 'ɔɪ'];
-export const CONSONANTS = ['p', 'b', 't', 'd', 'k', 'ɡ', 'tʃ', 'dʒ', 'f', 'v', 'θ', 'ð', 's', 'z', 'ʃ', 'ʒ', 'h', 'm', 'n', 'ŋ', 'ɫ', 'ɹ', 'w', 'j'];
+export const VOWELS = ['i', 'ɪ', 'ɛ', 'æ', 'ə', 'ʌ', 'ɝ', 'u', 'ʊ', 'ɔ', 'ɑ', 'eɪ', 'oʊ', 'aɪ', 'aʊ', 'ɔɪ'];
+export const CONSONANTS = ['p', 'b', 't', 'd', 'k', 'ɡ', 'tʃ', 'dʒ', 'f', 'v', 'θ', 'ð', 's', 'z', 'ʃ', 'ʒ', 'h', 'm', 'n', 'ŋ', 'ɫ', 'ɹ', 'ʍ', 'w', 'j'];
+
+// ipa-dict follows two conventions the chart does not: ə covers both schwa and
+// wedge, and ʍ is spelled out as the sequence hw. resolve() undoes both, so
+// data/ holds exactly what the game tiles and reveals. Vowel chars are listed
+// out because a stress mark belongs to the next vowel it reaches, not to any
+// later one.
+const AFTER_STRESS = /([ˈˌ])([^iɪɛæəɝuʊɔɑaeo]*)ə/g;
+export function resolve(ipa, word) {
+  const s = /wh/.test(word) ? ipa.replace(/hw/g, 'ʍ') : ipa;
+  return s.replace(AFTER_STRESS, '$1$2ʌ');
+}
 export const PHONEMES = [...CONSONANTS, ...VOWELS];
 
 const PHONEME_SET = new Set(PHONEMES);

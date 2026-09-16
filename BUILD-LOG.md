@@ -227,8 +227,11 @@ favicon to clear a 404.
 
 ## 8. Known quirks inherited from the source dictionary
 
-- Conservative on some American pronunciations: `what` is `/ˈhwət/`, `news` is `/ˈnjuz/`.
-- `ɫ` (dark L) for every /l/; `ə` covers both /ə/ and /ʌ/.
+- Conservative on some American pronunciations: `what` is `/ˈʍʌt/`, `news` is `/ˈnjuz/`.
+- `ɫ` (dark L) for every /l/, where the chart writes plain `l`. Same phoneme, and the tile
+  has to match what the game reveals, so the dictionary's spelling wins.
+- `ə` covered both /ə/ and /ʌ/, and `ʍ` was written out as `hw`. `resolve()` in `src/ipa.js`
+  undoes both at build time — see section 11.
 - A few lowercase proper nouns (`sony`, `google`) ride in on the frequency list.
 - `tʃ`/`dʒ` are always read as affricates, so *courtship* tokenises its `t`+`ʃ` as one
   tile. Rare enough to leave alone.
@@ -237,6 +240,12 @@ favicon to clear a 404.
 
 ## 9. Deliberately not done
 
+- **A key for the glottal stop `ʔ`.** It is on the reference chart, but no American
+  pronunciation dictionary transcribes it in ordinary words: it is an allophone of /t/ in
+  *button*, and appears only in interjections like *uh-oh*, which the build filter drops
+  anyway. ipa-dict contains zero instances across 117,388 words, and CMUdict and Wikipron
+  have none either, so a different word list would not help. Its cell is left empty, which
+  is how the table already draws every other gap.
 - **Share-a-result button** — Wordle's emoji-grid share. Add it when people want to post
   scores.
 - **Tile flip animations** — only the invalid-guess shake is implemented.
@@ -271,6 +280,26 @@ the names and the ordering are theirs.
 
 Wide charts scroll horizontally on phones rather than reflowing; a place-by-manner grid has
 no sensible narrow form.
+
+## 11. Making every chart symbol playable
+
+The chart showed three symbols the game could not use. Two were recoverable from the
+dictionary already in the repo, so no new word list was needed:
+
+- **`ʌ`** — ipa-dict writes the stressed vowel of *cup* as `ə`, which is the usual analysis
+  (`ə` is the unstressed vowel), but the chart lists both. A stress mark belongs to the next
+  vowel it reaches, so `/ˈkəp/` is `/ˈkʌp/` while `/ˈsoʊfə/` and `/əˈbaʊt/` are untouched.
+  7,050 words have a stressed `ə`; 5,892 survive the length filter.
+- **`ʍ`** — written out as `hw`: *which* is `/ˈhwɪtʃ/`. Merged into one tile for words spelled
+  with *wh*, which leaves the `hua-`/`hwa-` borrowings (*huang*, *huachuca*) as a genuine
+  h + w. 266 words in the guess list, though the short ones (*which*, *when*, *what*) now
+  fall under the four-phoneme floor, since merging the two tiles into one shortened them.
+- **`ʔ`** — not recoverable from any word list. See section 9.
+
+Both rules live in `resolve()`, applied by the build, so `data/` holds exactly what the game
+tiles and reveals — the tiles cannot disagree with the transcription underneath them. The
+self-check now asserts both directions: no word uses a symbol that is not a key, and no key
+is unreachable by every word.
 
 ## Running it
 

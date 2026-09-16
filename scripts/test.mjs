@@ -2,7 +2,7 @@
 // Wordle marking with repeated phonemes. Run: node scripts/test.mjs
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { tokenize, PHONEMES } from '../src/ipa.js';
+import { tokenize, resolve, PHONEMES } from '../src/ipa.js';
 import { score, dailyEntry, KEY_ROWS, CONS_GRID, VPOS, DIPHS } from '../src/app.js';
 
 // --- tokenizer ---
@@ -12,6 +12,19 @@ assert.deepEqual(tokenize('/ˈdʒɔɪn/'), ['dʒ', 'ɔɪ', 'n'], 'ɔɪ wins over
 assert.deepEqual(tokenize('/ˈθɔt/'), ['θ', 'ɔ', 't'], 'bare ɔ still works');
 assert.deepEqual(tokenize('/ˌɪnfɝˈmeɪʃən/'), ['ɪ', 'n', 'f', 'ɝ', 'm', 'eɪ', 'ʃ', 'ə', 'n'], 'stress marks are dropped');
 assert.equal(tokenize('/ˈkæt qq/'), null, 'unknown symbols reject');
+assert.deepEqual(tokenize('/ˈkʌp/'), ['k', 'ʌ', 'p']);
+assert.deepEqual(tokenize('/ˈʍɪtʃ/'), ['ʍ', 'ɪ', 'tʃ'], 'ʍ is one tile');
+
+// --- ipa-dict conventions the chart does not share ---
+// ə covers schwa and wedge; the stress mark belongs to the next vowel it reaches.
+assert.equal(resolve('/ˈkəp/', 'cup'), '/ˈkʌp/');
+assert.equal(resolve('/ˈbətən/', 'button'), '/ˈbʌtən/', 'only the stressed ə moves');
+assert.equal(resolve('/ˌəndɝˈstænd/', 'understand'), '/ˌʌndɝˈstænd/', 'secondary stress counts too');
+assert.equal(resolve('/əˈbaʊt/', 'about'), '/əˈbaʊt/', 'a mark does not reach backwards');
+assert.equal(resolve('/ˈsoʊfə/', 'sofa'), '/ˈsoʊfə/', 'a mark does not reach past another vowel');
+// hw is ʍ in the wh- words and two sounds in the borrowings that merely look alike.
+assert.equal(resolve('/ˈhwɪtʃ/', 'which'), '/ˈʍɪtʃ/');
+assert.equal(resolve('/ˈhwæŋ/', 'huang'), '/ˈhwæŋ/', 'hua- and hwa- borrowings keep h + w');
 
 // --- marking ---
 const m = (g, a) => score(g.split(' '), a.split(' ')).join('');
@@ -45,14 +58,20 @@ assert.ok(adjacent < 150, 'consecutive days should rarely repeat, got ' + adjace
 for (const f of ['data/common.txt', 'data/all.txt']) {
   const lines = fs.readFileSync(f, 'utf8').split('\n').filter(Boolean);
   assert.ok(lines.length > 0, f + ' is empty');
+  const used = new Set();
   for (const line of lines) {
     const [word, ipa] = line.split('\t');
     const ph = tokenize(ipa);
     assert.ok(ph, f + ': cannot tokenize ' + word + ' ' + ipa);
     assert.ok(ph.length >= 4 && ph.length <= 9, f + ': ' + word + ' is ' + ph.length + ' phonemes');
-    for (const p of ph) assert.ok(PHONEMES.includes(p), f + ': ' + p + ' is not a key on the keyboard');
+    for (const p of ph) {
+      assert.ok(PHONEMES.includes(p), f + ': ' + p + ' is not a key on the keyboard');
+      used.add(p);
+    }
   }
-  console.log(f + ': ' + lines.length + ' entries ok');
+  // And the other direction: a key no word can use is a key that can never be pressed.
+  if (f === 'data/all.txt') for (const p of PHONEMES) assert.ok(used.has(p), p + ' is on the keyboard but in no word');
+  console.log(f + ': ' + lines.length + ' entries ok, ' + used.size + '/' + PHONEMES.length + ' phonemes used');
 }
 
 // --- keyboard layouts ---

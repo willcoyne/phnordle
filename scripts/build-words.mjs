@@ -1,7 +1,7 @@
 // Turns words/en_US.txt into the three lists the game loads.
 // Run: node scripts/build-words.mjs
 import fs from 'node:fs';
-import { tokenize, firstPronunciation } from '../src/ipa.js';
+import { tokenize, firstPronunciation, resolve } from '../src/ipa.js';
 
 const MIN = 4, MAX = 9;           // phoneme count — the grid is phonemes, not spelling
 const COMMON_TARGET = 1200;
@@ -11,7 +11,7 @@ for (const line of fs.readFileSync('words/en_US.txt', 'utf8').split('\n')) {
   if (!line) continue;
   const [word, field] = line.split('\t');
   if (!/^[a-z]+$/.test(word)) continue;          // drops "'em", "a la carte", proper-noun casing
-  const ipa = firstPronunciation(field);
+  const ipa = resolve(firstPronunciation(field), word);
   const t = tokenize(ipa);
   if (!t || t.length < MIN || t.length > MAX) continue;
   entries.push([word, ipa, t.length]);

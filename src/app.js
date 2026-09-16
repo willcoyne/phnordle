@@ -8,15 +8,15 @@ const EPOCH = Date.UTC(2026, 0, 1);            // day 0 of the Phnordle calendar
 const EG = {
   p: 'pie', b: 'bee', t: 'tea', d: 'do', k: 'key', 'ɡ': 'go', 'tʃ': 'chew', 'dʒ': 'jaw',
   f: 'fee', v: 'view', 'θ': 'thin', 'ð': 'this', s: 'see', z: 'zoo', 'ʃ': 'shoe', 'ʒ': 'vision', h: 'he',
-  m: 'me', n: 'no', 'ŋ': 'sing', 'ɫ': 'low', 'ɹ': 'red', w: 'we', j: 'yes',
-  i: 'see', 'ɪ': 'sit', 'ɛ': 'bed', 'æ': 'cat', 'ə': 'sofa', 'ɝ': 'bird', u: 'too', 'ʊ': 'book', 'ɔ': 'thought', 'ɑ': 'father',
+  m: 'me', n: 'no', 'ŋ': 'sing', 'ɫ': 'low', 'ɹ': 'red', 'ʍ': 'which', w: 'we', j: 'yes',
+  i: 'see', 'ɪ': 'sit', 'ɛ': 'bed', 'æ': 'cat', 'ə': 'sofa', 'ʌ': 'cup', 'ɝ': 'bird', u: 'too', 'ʊ': 'book', 'ɔ': 'thought', 'ɑ': 'father',
   'eɪ': 'day', 'oʊ': 'go', 'aɪ': 'my', 'aʊ': 'now', 'ɔɪ': 'boy',
 };
 export const KEY_ROWS = [
   ['p', 'b', 't', 'd', 'k', 'ɡ', 'tʃ', 'dʒ'],
   ['f', 'v', 'θ', 'ð', 's', 'z', 'ʃ', 'ʒ', 'h'],
-  ['m', 'n', 'ŋ', 'ɫ', 'ɹ', 'w', 'j'],
-  ['i', 'ɪ', 'ɛ', 'æ', 'ə', 'ɝ', 'u', 'ʊ', 'ɔ', 'ɑ'],
+  ['m', 'n', 'ŋ', 'ɫ', 'ɹ', 'ʍ', 'w', 'j'],
+  ['i', 'ɪ', 'ɛ', 'æ', 'ə', 'ʌ', 'ɝ', 'u', 'ʊ', 'ɔ', 'ɑ'],
   ['eɪ', 'oʊ', 'aɪ', 'aʊ', 'ɔɪ'],
 ];
 
@@ -33,11 +33,11 @@ export const CONS_GRID = [
   ['Nasal', [0, 'm'], 0, 0, [0, 'n'], 0, 0, [0, 'ŋ'], 0],
   ['Lateral Liquid', 0, 0, 0, [0, 'ɫ'], 0, 0, 0, 0],
   ['Retroflex Liquid', 0, 0, 0, [0, 'ɹ'], 0, 0, 0, 0],
-  ['Glide', [0, 'w'], 0, 0, 0, 0, [0, 'j'], 0, 0],
+  ['Glide', ['ʍ', 'w'], 0, 0, 0, 0, [0, 'j'], 0, 0],
 ];
 // Percent of the quad drawing area: x = front→back, y = close→open.
 export const VPOS = {
-  i: [14, 8], 'ɪ': [19, 23], 'ɛ': [27, 50], 'æ': [34, 81], 'ə': [49, 44], 'ɝ': [51, 64],
+  i: [14, 8], 'ɪ': [19, 23], 'ɛ': [27, 50], 'æ': [34, 81], 'ə': [46, 43], 'ʌ': [63, 53], 'ɝ': [48, 64],
   u: [90, 7], 'ʊ': [82, 23], 'ɔ': [88, 58], 'ɑ': [77, 87],
 };
 // [phoneme, start point, glide target] — drawn as an arrow, as on the diphthong chart.
