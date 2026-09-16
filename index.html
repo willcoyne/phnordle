@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="wordle">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phnordle — Wordle in the IPA</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%236aaa64'/><text x='16' y='25' font-size='24' font-family='sans-serif' text-anchor='middle' fill='white'>%C9%99</text></svg>">
+<link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+<header>
+  <button type="button" id="help-btn" class="icon-btn" aria-label="How to play">?</button>
+  <h1>Phnordle</h1>
+  <select id="theme" aria-label="Theme">
+    <option value="wordle">Wordle</option>
+    <option value="noir">Noir</option>
+    <option value="phosphor">Phosphor</option>
+    <option value="amber">Amber</option>
+    <option value="aurora">Aurora</option>
+    <option value="ember">Ember</option>
+    <option value="blueprint">Blueprint</option>
+  </select>
+</header>
+
+<nav id="modes">
+  <button type="button" data-mode="classic" class="active">Classic</button>
+  <button type="button" data-mode="easy">Endless Easy</button>
+  <button type="button" data-mode="hard">Endless Hard</button>
+</nav>
+
+<div id="bar">
+  <span id="sub"></span>
+  <label id="spell-toggle" hidden><input type="checkbox" id="spell"> Show spelling</label>
+  <button type="button" id="hint-btn" hidden>Hint</button>
+</div>
+
+<div id="stats" hidden></div>
+<div id="board" role="grid" aria-label="Guesses"></div>
+<div id="msg" role="status" aria-live="polite"></div>
+<div id="keyboard"></div>
+
+<dialog id="help">
+  <h2>How to play</h2>
+  <p>Guess the <b>IPA transcription</b> of a hidden English word in 6 tries. You type
+     <b>phonemes</b>, not letters — each tile is one sound, so <span class="ex">tʃ</span> and
+     <span class="ex">aɪ</span> each fill a single tile.</p>
+  <p><span class="sw g"></span> right phoneme, right spot &nbsp;
+     <span class="sw y"></span> right phoneme, wrong spot &nbsp;
+     <span class="sw x"></span> not in the word</p>
+  <p>Every key shows an example word for its sound. Guesses must be the real pronunciation
+     of some English word of the same length.</p>
+  <p class="credit">Pronunciations from
+     <a href="https://github.com/open-dict-data/ipa-dict" target="_blank" rel="noopener">open-dict-data/ipa-dict</a>
+     (MIT). Word frequencies from
+     <a href="https://github.com/first20hours/google-10000-english" target="_blank" rel="noopener">google-10000-english</a>.
+     Theme names nodding to <a href="http://ascii.krackeddevs.com/" target="_blank" rel="noopener">ascii.krackeddevs.com</a>.</p>
+  <button type="button" id="help-close">Play</button>
+</dialog>
+
+<script type="module" src="src/app.js"></script>
+</body>
+</html>

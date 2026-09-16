@@ -1,0 +1,10 @@
+{
+  "name": "phnordle",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-words.mjs",
+    "test": "node scripts/test.mjs",
+    "start": "node scripts/serve.mjs"
+  }
+}

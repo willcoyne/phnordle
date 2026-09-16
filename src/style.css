@@ -1,0 +1,107 @@
+/* Themes are pure variable swaps — adding one means adding a [data-theme] block, nothing else. */
+:root, [data-theme=wordle] {
+  --bg:#ffffff; --fg:#1a1a1b; --muted:#787c7e; --line:#d3d6da; --key:#d3d6da; --key-fg:#1a1a1b;
+  --green:#6aaa64; --yellow:#c9b458; --gray:#787c7e; --mark-fg:#ffffff; --accent:#6aaa64; --font:"Helvetica Neue",Arial,sans-serif;
+}
+[data-theme=noir] {
+  --bg:#0b0b0c; --fg:#e8e8e8; --muted:#8a8a8a; --line:#2a2a2c; --key:#2a2a2c; --key-fg:#e8e8e8;
+  --green:#d7d7d7; --yellow:#6e6e6e; --gray:#1a1a1b; --mark-fg:#0b0b0c; --accent:#d7d7d7;
+}
+[data-theme=phosphor] {
+  --bg:#020a03; --fg:#38ff7a; --muted:#1c7a3c; --line:#0d3a1c; --key:#07240f; --key-fg:#38ff7a;
+  --green:#38ff7a; --yellow:#1c7a3c; --gray:#07240f; --mark-fg:#020a03; --accent:#38ff7a;
+  --font:"SF Mono",Consolas,monospace;
+}
+[data-theme=amber] {
+  --bg:#0f0800; --fg:#ffb000; --muted:#8a5f00; --line:#3a2700; --key:#241800; --key-fg:#ffb000;
+  --green:#ffb000; --yellow:#8a5f00; --gray:#241800; --mark-fg:#0f0800; --accent:#ffb000;
+  --font:"SF Mono",Consolas,monospace;
+}
+[data-theme=aurora] {
+  --bg:#0a0f1f; --fg:#e6ecff; --muted:#7b88b0; --line:#1d2742; --key:#1d2742; --key-fg:#e6ecff;
+  --green:#3ddc97; --yellow:#7b5cff; --gray:#141c31; --mark-fg:#0a0f1f; --accent:#3ddc97;
+}
+[data-theme=ember] {
+  --bg:#150a08; --fg:#ffd9c0; --muted:#9b6250; --line:#3a1d16; --key:#301812; --key-fg:#ffd9c0;
+  --green:#ff6b35; --yellow:#b23a1f; --gray:#230f0b; --mark-fg:#150a08; --accent:#ff6b35;
+}
+[data-theme=blueprint] {
+  --bg:#0a2540; --fg:#dbeafe; --muted:#6b93bd; --line:#17416b; --key:#123356; --key-fg:#dbeafe;
+  --green:#7dd3fc; --yellow:#38608f; --gray:#0d2b49; --mark-fg:#0a2540; --accent:#7dd3fc;
+  --font:"SF Mono",Consolas,monospace;
+}
+
+/* Each theme already picks its own colours. Declaring the scheme stops Chrome's
+   Auto Dark Mode repainting them (it was turning phosphor's near-black page
+   light grey) and makes scrollbars and the theme <select> match. */
+[data-theme=wordle] { color-scheme:light; }
+[data-theme=noir], [data-theme=phosphor], [data-theme=amber],
+[data-theme=aurora], [data-theme=ember], [data-theme=blueprint] { color-scheme:dark; }
+
+* { box-sizing:border-box; }
+body {
+  margin:0; min-height:100vh; display:flex; flex-direction:column; align-items:center;
+  background:var(--bg); color:var(--fg); font-family:var(--font); user-select:none;
+  transition:background .2s,color .2s;
+}
+header {
+  width:100%; max-width:600px; display:flex; align-items:center; justify-content:space-between;
+  gap:8px; padding:8px 12px; border-bottom:1px solid var(--line);
+}
+h1 { margin:0; font-size:28px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+.icon-btn, #hint-btn, #help-close, #modes button, select {
+  font:inherit; color:var(--fg); background:transparent; border:1px solid var(--line);
+  border-radius:4px; padding:4px 10px; cursor:pointer;
+}
+select { background:var(--bg); }
+#modes { display:flex; gap:6px; margin:10px 0 4px; }
+#modes button.active { background:var(--accent); color:var(--mark-fg); border-color:var(--accent); font-weight:700; }
+#bar { display:flex; align-items:center; gap:14px; min-height:26px; font-size:13px; color:var(--muted); }
+#bar label { cursor:pointer; }
+#stats { display:flex; gap:16px; font-size:13px; color:var(--muted); margin-top:4px; }
+#stats b { color:var(--fg); }
+
+#board { display:grid; gap:5px; margin:12px 0; }
+.row { display:grid; gap:5px; }
+.tile {
+  width:56px; height:56px; display:flex; align-items:center; justify-content:center;
+  font-size:26px; font-weight:700; border:2px solid var(--line); background:transparent; color:var(--fg);
+}
+.tile.filled { border-color:var(--muted); }
+.tile.g { background:var(--green); border-color:var(--green); color:var(--mark-fg); }
+.tile.y { background:var(--yellow); border-color:var(--yellow); color:var(--mark-fg); }
+.tile.x { background:var(--gray); border-color:var(--gray); color:var(--mark-fg); }
+.row.shake { animation:shake .5s; }
+@keyframes shake { 10%,90%{transform:translateX(-2px)} 30%,70%{transform:translateX(4px)} 50%{transform:translateX(-6px)} }
+
+#msg { min-height:30px; font-size:14px; font-weight:600; text-align:center; padding:4px 12px; }
+#msg .reveal { font-weight:400; color:var(--muted); }
+
+#keyboard { display:flex; flex-direction:column; gap:6px; align-items:center; padding:6px 6px 20px; }
+.krow { display:flex; gap:4px; flex-wrap:wrap; justify-content:center; }
+.key {
+  min-width:44px; padding:5px 6px 3px; border:none; border-radius:4px; cursor:pointer;
+  background:var(--key); color:var(--key-fg); font-family:inherit;
+  display:flex; flex-direction:column; align-items:center; line-height:1.1;
+}
+.key .sym { font-size:17px; font-weight:700; }
+.key .eg { font-size:9px; opacity:.65; letter-spacing:.02em; }
+.key.wide { min-width:62px; justify-content:center; font-size:12px; font-weight:700; }
+.key.g { background:var(--green); color:var(--mark-fg); }
+.key.y { background:var(--yellow); color:var(--mark-fg); }
+.key.x { background:var(--gray); color:var(--mark-fg); opacity:.55; }
+
+dialog { max-width:440px; border:1px solid var(--line); background:var(--bg); color:var(--fg); border-radius:8px; padding:20px; }
+dialog::backdrop { background:#0009; }
+dialog h2 { margin-top:0; }
+dialog p { font-size:14px; line-height:1.5; }
+.ex { font-weight:700; }
+.sw { display:inline-block; width:14px; height:14px; vertical-align:-2px; border-radius:2px; }
+.sw.g{background:var(--green)} .sw.y{background:var(--yellow)} .sw.x{background:var(--gray)}
+.credit { font-size:12px; color:var(--muted); }
+.credit a { color:var(--accent); }
+
+@media (max-width:520px) {
+  .tile { width:44px; height:44px; font-size:20px; }
+  .key { min-width:34px; } .key .sym { font-size:14px; } .key .eg { font-size:8px; }
+}

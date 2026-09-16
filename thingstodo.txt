@@ -1,0 +1,19 @@
+Phnordle is a wordle based game but with the IPA, or international phonetic alphabet. 
+
+Phnordle consists of a wordle front end, but also with other modes.
+
+Mode 1- Classic
+    -There is a phonetic keyboard on the website (like wordle has a normal keyboard) and then you get 6 attempts to get the word. The classic mode has the "Phnordle of the day" so it has a distinct word for that certain day that everyone gets for that day. The word spans from 4-8 letters, and is typically a generally common word. 
+    -There is a hint option that will give you the word, but not the phonetic spelling of it.
+    -Same gray, yellow, green letters apply.
+Mode 2- Endless Play Easy
+    -Similar to Mode 1, but if is an endless amount of words. From here, I need you to pull from the en_US.txt but pull only common words (or just make your own .txt file with the same format but has a 1000 more common words between 4-9 letters)
+    -this time there is a toggle on whether you want the regular spelling of the word or not. 
+    -you get a streak built in for this mode on how many you get right in a row, as well as how many you get right/wrong in total.
+
+Mode 3- Endless play Hard/Advanced
+    -Similar to mode 2, but pulls directly from the en_US.txt, so it can include really rare words.
+
+I got the wordlist from https://github.com/open-dict-data/ipa-dict so make sure that is credited somehow.
+
+Should have a similar theme to wordle, but use something like http://ascii.krackeddevs.com/ so you can get cool themes and such.
