@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { tokenize, PHONEMES } from '../src/ipa.js';
-import { score, dailyEntry } from '../src/app.js';
+import { score, dailyEntry, KEY_ROWS, CONS_GRID, VPOS, DIPHS } from '../src/app.js';
 
 // --- tokenizer ---
 assert.deepEqual(tokenize('/ˈkæt/'), ['k', 'æ', 't']);
@@ -54,5 +54,13 @@ for (const f of ['data/common.txt', 'data/all.txt']) {
   }
   console.log(f + ': ' + lines.length + ' entries ok');
 }
+
+// --- keyboard layouts ---
+// Both layouts must offer every phoneme exactly once, or a word becomes untypeable.
+const cover = keys => assert.deepEqual([...keys].sort(), [...PHONEMES].sort());
+cover(KEY_ROWS.flat());
+cover([...CONS_GRID.flatMap(([, ...cells]) => cells.flat()), ...Object.keys(VPOS), ...DIPHS.map(d => d[0])]);
+for (const [, , target] of DIPHS) assert.ok(VPOS[target], target + ' has no position to glide to');
+for (const row of CONS_GRID) assert.equal(row.length, 9, row[0] + ' must have one cell per place');
 
 console.log('all checks passed');

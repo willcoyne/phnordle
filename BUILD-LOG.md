@@ -244,6 +244,24 @@ favicon to clear a 404.
 - **Nothing committed to git.** All files are still untracked; committing was not
   requested.
 
+## 10. IPA chart keyboard layout
+
+A second keyboard layout, toggled above the keys and remembered in localStorage:
+
+- **Consonants** — a place (columns) x manner (rows) grid, voiceless before voiced in each
+  cell, the same shape as the IPA consonant chart. `w` sits under Velar; it is labial-velar,
+  and one cell had to be picked.
+- **Vowels** — the vowel quadrilateral, drawn as one inline SVG with the keys absolutely
+  positioned over it. Two views: monophthongs placed by tongue position, and diphthongs
+  drawn as arrows from their starting vowel to the glide target, as on a diphthong chart.
+- The quad box and the SVG viewBox share an aspect ratio, so percent coordinates and
+  viewBox units line up and the arrowheads are not skewed.
+- `scripts/test.mjs` asserts both layouts offer every phoneme exactly once — a dropped key
+  would silently make some words untypeable.
+
+Wide charts scroll horizontally on phones rather than reflowing; a place-by-manner grid has
+no sensible narrow form.
+
 ## Running it
 
 ```

@@ -12,12 +12,39 @@ const EG = {
   i: 'see', 'ɪ': 'sit', 'ɛ': 'bed', 'æ': 'cat', 'ə': 'sofa', 'ɝ': 'bird', u: 'too', 'ʊ': 'book', 'ɔ': 'thought', 'ɑ': 'father',
   'eɪ': 'day', 'oʊ': 'go', 'aɪ': 'my', 'aʊ': 'now', 'ɔɪ': 'boy',
 };
-const KEY_ROWS = [
+export const KEY_ROWS = [
   ['p', 'b', 't', 'd', 'k', 'ɡ', 'tʃ', 'dʒ'],
   ['f', 'v', 'θ', 'ð', 's', 'z', 'ʃ', 'ʒ', 'h'],
   ['m', 'n', 'ŋ', 'ɫ', 'ɹ', 'w', 'j'],
   ['i', 'ɪ', 'ɛ', 'æ', 'ə', 'ɝ', 'u', 'ʊ', 'ɔ', 'ɑ'],
   ['eɪ', 'oʊ', 'aɪ', 'aʊ', 'ɔɪ'],
+];
+
+/* Chart layout: the same keys, arranged where the IPA charts put them.
+   Consonants by place (columns) and manner (rows); vowels by tongue position
+   inside the vowel quadrilateral. */
+const PLACES = [
+  ['Bilab.', 'Bilabial'], ['Labiod.', 'Labiodental'], ['Dent.', 'Dental'], ['Alv.', 'Alveolar'],
+  ['Postalv.', 'Postalveolar'], ['Pal.', 'Palatal'], ['Vel.', 'Velar'], ['Glot.', 'Glottal'],
+];
+// One array per place column, voiceless first — the pairing the chart is for.
+export const CONS_GRID = [
+  ['Plosive', ['p', 'b'], [], [], ['t', 'd'], [], [], ['k', 'ɡ'], []],
+  ['Affricate', [], [], [], [], ['tʃ', 'dʒ'], [], [], []],
+  ['Fricative', [], ['f', 'v'], ['θ', 'ð'], ['s', 'z'], ['ʃ', 'ʒ'], [], [], ['h']],
+  ['Nasal', ['m'], [], [], ['n'], [], [], ['ŋ'], []],
+  ['Approximant', [], [], [], ['ɹ'], [], ['j'], ['w'], []],
+  ['Lateral', [], [], [], ['ɫ'], [], [], [], []],
+];
+// Percent of the quad box: x = front→back, y = close→open.
+export const VPOS = {
+  i: [12, 7], 'ɪ': [19, 23], 'ɛ': [27, 50], 'æ': [34, 81], 'ə': [49, 44], 'ɝ': [51, 64],
+  u: [90, 7], 'ʊ': [82, 23], 'ɔ': [88, 58], 'ɑ': [77, 87],
+};
+// [phoneme, start point, glide target] — drawn as an arrow, as on a diphthong chart.
+export const DIPHS = [
+  ['eɪ', [11, 48], 'ɪ'], ['aɪ', [67, 88], 'ɪ'], ['ɔɪ', [90, 56], 'ɪ'],
+  ['oʊ', [93, 40], 'ʊ'], ['aʊ', [86, 88], 'ʊ'],
 ];
 
 const $ = id => document.getElementById(id);
@@ -45,7 +72,10 @@ function parse(text) {
 }
 
 const data = { common: [], all: [], valid: new Set() };
-const S = { mode: 'classic', entry: null, rows: [], cur: [], done: false, hinted: false, day: 0 };
+const S = {
+  mode: 'classic', entry: null, rows: [], cur: [], done: false, hinted: false, day: 0,
+  layout: 'rows', vowels: 'mono',
+};
 
 const dayIndex = () => {
   const n = new Date();
@@ -112,26 +142,139 @@ function renderKeys() {
   }
   const kb = $('keyboard');
   kb.innerHTML = '';
+  kb.className = S.layout;
+  kb.appendChild(tabs([['rows', 'Rows'], ['chart', 'IPA chart']], S.layout, v => {
+    S.layout = v;
+    store.set('layout', v);
+    renderKeys();
+  }));
+  (S.layout === 'chart' ? chartKeys : rowKeys)(kb, best);
+}
+
+function rowKeys(kb, best) {
   KEY_ROWS.forEach((keys, i) => {
     const row = el('div', 'krow');
     const last = i === KEY_ROWS.length - 1;
     if (last) row.appendChild(mkAction('ENTER', submit));
-    for (const p of keys) {
-      const k = el('button', 'key' + (best.has(p) ? ' ' + best.get(p) : ''));
-      k.appendChild(el('span', 'sym', p));
-      k.appendChild(el('span', 'eg', EG[p]));
-      k.onclick = () => push(p);
-      row.appendChild(k);
-    }
+    for (const p of keys) row.appendChild(mkKey(p, best));
     if (last) row.appendChild(mkAction('DEL', back));
     kb.appendChild(row);
   });
 }
+
+function chartKeys(kb, best) {
+  kb.appendChild(consChart(best));
+  kb.appendChild(vowelChart(best));
+  const row = el('div', 'krow');
+  row.appendChild(mkAction('ENTER', submit));
+  row.appendChild(mkAction('DEL', back));
+  kb.appendChild(row);
+}
+
+function consChart(best) {
+  const wrap = el('div', 'chart');
+  wrap.appendChild(el('div', 'chart-head', 'Consonants'));
+  const g = el('div', 'cgrid');
+  g.appendChild(el('div', 'clabel'));
+  for (const [abbr, full] of PLACES) {
+    const h = el('div', 'chead', abbr);
+    h.title = full;
+    g.appendChild(h);
+  }
+  for (const [manner, ...cells] of CONS_GRID) {
+    g.appendChild(el('div', 'clabel', manner));
+    for (const cell of cells) {
+      const c = el('div', 'ccell');
+      for (const p of cell) c.appendChild(mkKey(p, best));
+      g.appendChild(c);
+    }
+  }
+  wrap.appendChild(g);
+  return wrap;
+}
+
+// Quad box is 460x230 units with a 30-unit gutter on top for the column labels;
+// aspect-ratio in the CSS matches, so percent coords and viewBox units line up.
+const U = ([x, y]) => [x * 4.6, y * 2.3];
+
+function vowelChart(best) {
+  const wrap = el('div', 'chart');
+  const head = el('div', 'chart-head', 'Vowels');
+  head.appendChild(tabs([['mono', 'Monophthongs'], ['di', 'Diphthongs']], S.vowels, v => {
+    S.vowels = v;
+    store.set('vowels', v);
+    renderKeys();
+  }));
+  wrap.appendChild(head);
+
+  const quad = el('div', 'quad');
+  const lines = S.vowels === 'di' ? DIPHS.map(([, from, to]) => arrow(from, VPOS[to])).join('') : '';
+  quad.innerHTML = `<svg viewBox="0 -30 460 260" aria-hidden="true">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5"
+      orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+    <g fill="currentColor" font-size="12" text-anchor="middle">
+      <text x="110" y="-11">Front</text><text x="253" y="-11">Central</text><text x="391" y="-11">Back</text>
+    </g>
+    <g fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M36.8 0 H460 V230 H128.8 Z"/>
+      <path d="M67 76 H460 M98 153 H460" stroke-width=".75"/>
+      <path d="M184 0 V230 M322 0 V230" stroke-width=".75"/>
+    </g>
+    <g stroke="currentColor" stroke-width="1.6" marker-end="url(#ar)">${lines}</g>
+  </svg>`;
+
+  if (S.vowels === 'mono') {
+    for (const p in VPOS) quad.appendChild(place(mkKey(p, best), VPOS[p]));
+  } else {
+    for (const t of ['ɪ', 'ʊ']) quad.appendChild(place(el('span', 'qghost', t), VPOS[t]));
+    for (const [p, from] of DIPHS) quad.appendChild(place(mkKey(p, best), from));
+  }
+  wrap.appendChild(quad);
+  wrap.appendChild(el('div', 'chart-foot', S.vowels === 'mono'
+    ? 'front → back across, close → open down'
+    : 'arrows show the glide; ɪ and ʊ are the targets'));
+  return wrap;
+}
+
+/** Trimmed so the line starts clear of the key and stops short of its target. */
+function arrow(from, to) {
+  const [x1, y1] = U(from), [x2, y2] = U(to);
+  const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1;
+  const a = 22 / len, b = 13 / len;
+  return `<line x1="${x1 + dx * a}" y1="${y1 + dy * a}" x2="${x2 - dx * b}" y2="${y2 - dy * b}"/>`;
+}
+
+function place(node, [x, y]) {
+  // Top offset folds in the 30-unit label gutter: 30/260 of the box.
+  node.style.left = x + '%';
+  node.style.top = (11.54 + y * 0.8846) + '%';
+  return node;
+}
+
+function mkKey(p, best) {
+  const k = el('button', 'key' + (best.has(p) ? ' ' + best.get(p) : ''));
+  k.appendChild(el('span', 'sym', p));
+  k.appendChild(el('span', 'eg', EG[p]));
+  k.onclick = () => push(p);
+  return k;
+}
+
 const mkAction = (label, fn) => {
   const b = el('button', 'key wide', label);
   b.onclick = fn;
   return b;
 };
+
+function tabs(opts, active, onpick) {
+  const box = el('div', 'ktabs');
+  for (const [val, label] of opts) {
+    const b = el('button', val === active ? 'active' : null, label);
+    b.type = 'button';
+    b.onclick = () => onpick(val);
+    box.appendChild(b);
+  }
+  return box;
+}
 
 function renderStats() {
   const box = $('stats');
@@ -266,6 +409,9 @@ function boot([commonText, allText]) {
   const theme = store.get('theme', 'wordle');
   $('theme').value = theme;
   document.documentElement.dataset.theme = theme;
+
+  S.layout = store.get('layout', 'rows');
+  S.vowels = store.get('vowels', 'mono');
 
   for (const b of $('modes').children) b.onclick = () => setMode(b.dataset.mode);
   $('spell').onchange = showSub;
