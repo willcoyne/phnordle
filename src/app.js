@@ -9,14 +9,14 @@ const EG = {
   p: 'pie', b: 'bee', t: 'tea', d: 'do', k: 'key', 'ɡ': 'go', 'tʃ': 'chew', 'dʒ': 'jaw',
   f: 'fee', v: 'view', 'θ': 'thin', 'ð': 'this', s: 'see', z: 'zoo', 'ʃ': 'shoe', 'ʒ': 'vision', h: 'he',
   m: 'me', n: 'no', 'ŋ': 'sing', 'ɾ': 'batter', 'ɫ': 'low', 'ɹ': 'red', 'ʍ': 'which', w: 'we', j: 'yes',
-  i: 'see', 'ɪ': 'sit', 'ɛ': 'bed', 'æ': 'cat', 'ə': 'sofa', 'ʌ': 'cup', 'ɝ': 'bird', u: 'too', 'ʊ': 'book', 'ɔ': 'thought', 'ɑ': 'father',
+  i: 'see', 'ɪ': 'sit', 'ɛ': 'bed', 'æ': 'cat', 'ə': 'sofa', 'ʌ': 'cup', u: 'too', 'ʊ': 'book', 'ɔ': 'thought', 'ɑ': 'father',
   'eɪ': 'day', 'oʊ': 'go', 'aɪ': 'my', 'aʊ': 'now', 'ɔɪ': 'boy',
 };
 export const KEY_ROWS = [
   ['p', 'b', 't', 'd', 'k', 'ɡ', 'tʃ', 'dʒ'],
   ['f', 'v', 'θ', 'ð', 's', 'z', 'ʃ', 'ʒ', 'h'],
   ['m', 'n', 'ŋ', 'ɾ', 'ɫ', 'ɹ', 'ʍ', 'w', 'j'],
-  ['i', 'ɪ', 'ɛ', 'æ', 'ə', 'ʌ', 'ɝ', 'u', 'ʊ', 'ɔ', 'ɑ'],
+  ['i', 'ɪ', 'ɛ', 'æ', 'ə', 'ʌ', 'u', 'ʊ', 'ɔ', 'ɑ'],
   ['eɪ', 'oʊ', 'aɪ', 'aʊ', 'ɔɪ'],
 ];
 
@@ -39,20 +39,20 @@ export const CONS_GRID = [
 ];
 // Percent of the quad drawing area: x = front→back, y = close→open.
 export const VPOS = {
-  i: [14, 8], 'ɪ': [19, 23], 'ɛ': [27, 50], 'æ': [34, 81], 'ə': [46, 43], 'ʌ': [63, 53], 'ɝ': [48, 64],
+  i: [16, 8], 'ɪ': [19, 23], 'ɛ': [27, 50], 'æ': [34, 81], 'ə': [49, 44], 'ʌ': [63, 53],
   u: [90, 7], 'ʊ': [82, 23], 'ɔ': [88, 58], 'ɑ': [77, 87],
 };
 // [phoneme, start point, glide target] — drawn as an arrow, as on the diphthong chart.
 export const DIPHS = [
-  ['eɪ', [11, 48], 'ɪ'], ['aɪ', [67, 88], 'ɪ'], ['ɔɪ', [90, 56], 'ɪ'],
+  ['eɪ', [23, 46], 'ɪ'], ['aɪ', [67, 88], 'ɪ'], ['ɔɪ', [90, 56], 'ɪ'],
   ['oʊ', [93, 40], 'ʊ'], ['aʊ', [86, 88], 'ʊ'],
 ];
 
 /* "IPA cheat sheet.pdf", transcribed: symbol, its example word, and the name the
    sheet gives it where it gives one. Two symbols differ from the sheet on purpose:
    ɫ stands in for its l, because ipa-dict writes every /l/ dark and a tile has to
-   match what the game reveals, and ɝ is not on the sheet at all but is a key here.
-   ʔ is on the sheet with no key — see the note in the dialog. */
+   match what the game reveals. ʔ is on the sheet with no key — see the note in the
+   dialog. */
 export const CHEAT = [
   ['Consonants', [
     ['p', 'part'], ['b', 'bat'], ['t', 'stop'], ['d', 'adapt'], ['k', 'scape'], ['ɡ', 'bigger'],
@@ -64,7 +64,7 @@ export const CHEAT = [
   ]],
   ['Vowels', [
     ['i', 'seek'], ['ɪ', 'hit'], ['ɛ', 'set', 'Epsilon'], ['æ', 'hat', 'Ash'],
-    ['ə', 'sofa', 'Schwa'], ['ʌ', 'bus', 'Wedge'], ['ɝ', 'bird'], ['u', 'boot'],
+    ['ə', 'sofa', 'Schwa'], ['ʌ', 'bus', 'Wedge'], ['u', 'boot'],
     ['ʊ', 'hood'], ['ɔ', 'awesome', 'Open O'], ['ɑ', 'father'],
   ]],
   ['Diphthongs', [

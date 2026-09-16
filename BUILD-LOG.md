@@ -230,9 +230,9 @@ favicon to clear a 404.
 - Conservative on some American pronunciations: `what` is `/ˈʍʌt/`, `news` is `/ˈnjuz/`.
 - `ɫ` (dark L) for every /l/, where the chart writes plain `l`. Same phoneme, and the tile
   has to match what the game reveals, so the dictionary's spelling wins.
-- `ə` covered both /ə/ and /ʌ/, `ʍ` was written out as `hw`, and the flap was left as a
-  plain `t` or `d`. `resolve()` in `src/ipa.js` undoes all three at build time — see
-  section 11.
+- `ə` covered both /ə/ and /ʌ/, `ʍ` was written out as `hw`, the flap was left as a plain
+  `t` or `d`, and the r-coloured vowel was the single symbol `ɝ`. `resolve()` in
+  `src/ipa.js` undoes all four at build time — see section 11.
 - A few lowercase proper nouns (`sony`, `google`) ride in on the frequency list.
 - `tʃ`/`dʒ` are always read as affricates, so *courtship* tokenises its `t`+`ʃ` as one
   tile. Rare enough to leave alone.
@@ -300,6 +300,12 @@ dictionary already in the repo, so no new word list was needed:
   *metal* and *editor* tap while *attack* (stressed), *winter* (after a nasal) and *ten*
   (initial) do not. Before a syllabic n the stop glottalises rather than taps, which is why
   *button* is excluded but *bottom* is not — the self-check caught that one. 8,284 words.
+- **`ɝ`** — the opposite problem: a key with no symbol on either sheet. Rewritten as the
+  `ə` + `ɹ` both sheets do have, which is the other standard American transcription, so
+  *bird* is `/ˈbəɹd/` and *water* `/ˈwɔɾəɹ/`. Deleting it instead would have dropped every
+  one of the 25,465 words that use it. Order matters inside `resolve()`: the wedge rule has
+  to run first, or the new `ə` of *bird* would be read as a stressed schwa and become
+  `/ˈbʌɹd/`. Those words gain a phoneme, so 1,226 of them now exceed the nine-phoneme cap.
 - **`ʔ`** — not recoverable from any word list. See section 9.
 
 Both rules live in `resolve()`, applied by the build, so `data/` holds exactly what the game

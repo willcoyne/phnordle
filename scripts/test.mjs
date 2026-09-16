@@ -7,10 +7,11 @@ import { score, dailyEntry, KEY_ROWS, CONS_GRID, VPOS, DIPHS, CHEAT } from '../s
 
 // --- tokenizer ---
 assert.deepEqual(tokenize('/ˈkæt/'), ['k', 'æ', 't']);
-assert.deepEqual(tokenize('/ˈtʃɝtʃ/'), ['tʃ', 'ɝ', 'tʃ'], 'affricates are one tile');
+assert.deepEqual(tokenize('/ˈtʃəɹtʃ/'), ['tʃ', 'ə', 'ɹ', 'tʃ'], 'affricates are one tile');
+assert.equal(tokenize('/ˈtʃɝtʃ/'), null, 'ɝ is not a key — resolve() writes it out as ə + ɹ');
 assert.deepEqual(tokenize('/ˈdʒɔɪn/'), ['dʒ', 'ɔɪ', 'n'], 'ɔɪ wins over bare ɔ');
 assert.deepEqual(tokenize('/ˈθɔt/'), ['θ', 'ɔ', 't'], 'bare ɔ still works');
-assert.deepEqual(tokenize('/ˌɪnfɝˈmeɪʃən/'), ['ɪ', 'n', 'f', 'ɝ', 'm', 'eɪ', 'ʃ', 'ə', 'n'], 'stress marks are dropped');
+assert.deepEqual(tokenize('/ˌɪnfəɹˈmeɪʃən/'), ['ɪ', 'n', 'f', 'ə', 'ɹ', 'm', 'eɪ', 'ʃ', 'ə', 'n'], 'stress marks are dropped');
 assert.equal(tokenize('/ˈkæt qq/'), null, 'unknown symbols reject');
 assert.deepEqual(tokenize('/ˈkʌp/'), ['k', 'ʌ', 'p']);
 assert.deepEqual(tokenize('/ˈʍɪtʃ/'), ['ʍ', 'ɪ', 'tʃ'], 'ʍ is one tile');
@@ -19,21 +20,24 @@ assert.deepEqual(tokenize('/ˈʍɪtʃ/'), ['ʍ', 'ɪ', 'tʃ'], 'ʍ is one tile')
 // ə covers schwa and wedge; the stress mark belongs to the next vowel it reaches.
 assert.equal(resolve('/ˈkəp/', 'cup'), '/ˈkʌp/');
 assert.equal(resolve('/ˈbətən/', 'button'), '/ˈbʌtən/', 'only the stressed ə moves');
-assert.equal(resolve('/ˌəndɝˈstænd/', 'understand'), '/ˌʌndɝˈstænd/', 'secondary stress counts too');
+assert.equal(resolve('/ˌəndɝˈstænd/', 'understand'), '/ˌʌndəɹˈstænd/', 'secondary stress counts too');
 assert.equal(resolve('/əˈbaʊt/', 'about'), '/əˈbaʊt/', 'a mark does not reach backwards');
 assert.equal(resolve('/ˈsoʊfə/', 'sofa'), '/ˈsoʊfə/', 'a mark does not reach past another vowel');
 // hw is ʍ in the wh- words and two sounds in the borrowings that merely look alike.
 assert.equal(resolve('/ˈhwɪtʃ/', 'which'), '/ˈʍɪtʃ/');
 assert.equal(resolve('/ˈhwæŋ/', 'huang'), '/ˈhwæŋ/', 'hua- and hwa- borrowings keep h + w');
 // The flap: a t or d tapped between a vowel and an unstressed vowel.
-assert.equal(resolve('/ˈwɔtɝ/', 'water'), '/ˈwɔɾɝ/');
 assert.equal(resolve('/ˈmɛdəɫ/', 'medal'), '/ˈmɛɾəɫ/', 'a d taps too');
 assert.equal(resolve('/ˈpɑɹti/', 'party'), '/ˈpɑɹɾi/', 'a preceding ɹ still taps');
-assert.equal(resolve('/ˈɛdətɝ/', 'editor'), '/ˈɛɾəɾɝ/', 'two taps in one word');
+assert.equal(resolve('/ˈwɪntɝ/', 'winter'), '/ˈwɪntəɹ/', 'not after a nasal');
+assert.equal(resolve('/ˈɛdətɝ/', 'editor'), '/ˈɛɾəɾəɹ/', 'two taps in one word');
 assert.equal(resolve('/əˈtæk/', 'attack'), '/əˈtæk/', 'not before a stressed vowel');
-assert.equal(resolve('/ˈwɪntɝ/', 'winter'), '/ˈwɪntɝ/', 'not after a nasal');
 assert.equal(resolve('/ˈbətən/', 'button'), '/ˈbʌtən/', 'glottalised before a syllabic n, not tapped');
 assert.equal(resolve('/ˈtɛn/', 'ten'), '/ˈtɛn/', 'not word-initial');
+// ɝ is on neither sheet, so it is written out as the ə + ɹ both sheets have.
+assert.equal(resolve('/ˈbɝd/', 'bird'), '/ˈbəɹd/', 'bird is ə + ɹ, never wedge + ɹ');
+assert.equal(resolve('/ˈəndɝ/', 'under'), '/ˈʌndəɹ/', 'the stressed ə is still wedge');
+assert.equal(resolve('/ˈwɔtɝ/', 'water'), '/ˈwɔɾəɹ/', 'and the t still taps afterwards');
 
 // --- marking ---
 const m = (g, a) => score(g.split(' '), a.split(' ')).join('');
