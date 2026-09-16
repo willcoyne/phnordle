@@ -497,11 +497,6 @@ function boot([commonText, allText]) {
     saveDaily();
     render();
   };
-  buildCheat();
-  $('big-hint-btn').onclick = () => $('cheat').showModal();
-  $('cheat-close').onclick = () => $('cheat').close();
-  $('help-btn').onclick = () => $('help').showModal();
-  $('help-close').onclick = () => $('help').close();
   document.addEventListener('keydown', e => {
     if ($('help').open) return;
     if (e.key === 'Enter') submit();
@@ -512,8 +507,18 @@ function boot([commonText, allText]) {
   if (!store.get('seen', false)) { $('help').showModal(); store.set('seen', true); }
 }
 
+/** Neither dialog needs the word lists, so they are live before the fetch lands. */
+function wireDialogs() {
+  buildCheat();
+  $('big-hint-btn').onclick = () => $('cheat').showModal();
+  $('cheat-close').onclick = () => $('cheat').close();
+  $('help-btn').onclick = () => $('help').showModal();
+  $('help-close').onclick = () => $('help').close();
+}
+
 // Guarded so node can import score() for the self-check without a DOM.
 if (typeof document !== 'undefined') {
+  wireDialogs();
   // Two-arg then, not .catch: a failure inside boot() must not be reported as a
   // failed download.
   Promise.all([
