@@ -59,8 +59,13 @@ for (const f of ['data/common.txt', 'data/all.txt']) {
 // Both layouts must offer every phoneme exactly once, or a word becomes untypeable.
 const cover = keys => assert.deepEqual([...keys].sort(), [...PHONEMES].sort());
 cover(KEY_ROWS.flat());
-cover([...CONS_GRID.flatMap(([, ...cells]) => cells.flat()), ...Object.keys(VPOS), ...DIPHS.map(d => d[0])]);
+const consKeys = CONS_GRID.flatMap(([, ...places]) => places.flatMap(pair => pair || [])).filter(Boolean);
+cover([...consKeys, ...Object.keys(VPOS), ...DIPHS.map(d => d[0])]);
 for (const [, , target] of DIPHS) assert.ok(VPOS[target], target + ' has no position to glide to');
-for (const row of CONS_GRID) assert.equal(row.length, 9, row[0] + ' must have one cell per place');
+for (const [manner, ...places] of CONS_GRID) {
+  assert.equal(places.length, 8, manner + ' must have one column per place');
+  // Each filled column is a [voiceless, voiced] pair; the renderer emits two cells either way.
+  for (const pair of places) if (pair) assert.equal(pair.length, 2, manner + ' has a malformed pair');
+}
 
 console.log('all checks passed');

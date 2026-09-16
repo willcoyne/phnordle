@@ -248,14 +248,24 @@ favicon to clear a 404.
 
 A second keyboard layout, toggled above the keys and remembered in localStorage:
 
-- **Consonants** — a place (columns) x manner (rows) grid, voiceless before voiced in each
-  cell, the same shape as the IPA consonant chart. `w` sits under Velar; it is labial-velar,
-  and one cell had to be picked.
-- **Vowels** — the vowel quadrilateral, drawn as one inline SVG with the keys absolutely
-  positioned over it. Two views: monophthongs placed by tongue position, and diphthongs
-  drawn as arrows from their starting vowel to the glide target, as on a diphthong chart.
-- The quad box and the SVG viewBox share an aspect ratio, so percent coordinates and
-  viewBox units line up and the arrowheads are not skewed.
+The reference is the pair of charts in the repo root, `IPA Consonant and Vowel Chart.pdf`
+and `Diphthongs Chart.png`; the layout follows them rather than the generic IPA chart, so
+the names and the ordering are theirs.
+
+- **Consonants** — a ruled table: `Place of Articulation` across the top with every place
+  split into voiceless | voiced sub-columns, `Manner of Articulation` down the side in the
+  reference's order (Stop, Fricative, Affricate, Nasal, Lateral Liquid, Retroflex Liquid,
+  Glide), empty cells drawn in, and the glottis legend underneath. `w` sits in Bilabial and
+  `j` in Palatal, as the reference has them.
+- **Vowels** — the vowel quadrilateral as one inline SVG with the keys absolutely positioned
+  over it: Front/Central/Back above, High/Mid/Low turned to run along the slanted edge, the
+  dotted lax region with its Lax/Tense labels, and the dashed rounded box overhanging the
+  right side. Two views: monophthongs placed by tongue position, and diphthongs drawn as
+  arrows from their starting vowel to the glide target.
+- `ʌ`, `ʔ` and `ʍ` appear on the reference but not in the ipa-dict en_US inventory, so they
+  are not keys. Drawing them as dead symbols would only invite clicks that do nothing.
+- One `VB` constant defines the viewBox and the CSS aspect ratio, and `pct()` derives the
+  key positions from it, so the trapezoid, the keys and the arrowheads cannot drift apart.
 - `scripts/test.mjs` asserts both layouts offer every phoneme exactly once — a dropped key
   would silently make some words untypeable.
 

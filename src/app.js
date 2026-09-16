@@ -20,28 +20,27 @@ export const KEY_ROWS = [
   ['eɪ', 'oʊ', 'aɪ', 'aʊ', 'ɔɪ'],
 ];
 
-/* Chart layout: the same keys, arranged where the IPA charts put them.
-   Consonants by place (columns) and manner (rows); vowels by tongue position
-   inside the vowel quadrilateral. */
-const PLACES = [
-  ['Bilab.', 'Bilabial'], ['Labiod.', 'Labiodental'], ['Dent.', 'Dental'], ['Alv.', 'Alveolar'],
-  ['Postalv.', 'Postalveolar'], ['Pal.', 'Palatal'], ['Vel.', 'Velar'], ['Glot.', 'Glottal'],
-];
-// One array per place column, voiceless first — the pairing the chart is for.
+/* Chart layout: the same keys, arranged as on the IPA charts in the repo root
+   (IPA Consonant and Vowel Chart.pdf, Diphthongs Chart.png). Place names,
+   manner names and their order are the reference's, not the generic IPA ones. */
+const PLACES = ['Bilabial', 'Labio-dental', 'Inter-dental', 'Alveolar', 'Post-Alveolar', 'Palatal', 'Velar', 'Glottal'];
+// One [voiceless, voiced] pair per place column, in PLACES order — the reference
+// splits every place into those two sub-columns, so m and n sit on the voiced side.
 export const CONS_GRID = [
-  ['Plosive', ['p', 'b'], [], [], ['t', 'd'], [], [], ['k', 'ɡ'], []],
-  ['Affricate', [], [], [], [], ['tʃ', 'dʒ'], [], [], []],
-  ['Fricative', [], ['f', 'v'], ['θ', 'ð'], ['s', 'z'], ['ʃ', 'ʒ'], [], [], ['h']],
-  ['Nasal', ['m'], [], [], ['n'], [], [], ['ŋ'], []],
-  ['Approximant', [], [], [], ['ɹ'], [], ['j'], ['w'], []],
-  ['Lateral', [], [], [], ['ɫ'], [], [], [], []],
+  ['Stop', ['p', 'b'], 0, 0, ['t', 'd'], 0, 0, ['k', 'ɡ'], 0],
+  ['Fricative', 0, ['f', 'v'], ['θ', 'ð'], ['s', 'z'], ['ʃ', 'ʒ'], 0, 0, ['h', 0]],
+  ['Affricate', 0, 0, 0, 0, ['tʃ', 'dʒ'], 0, 0, 0],
+  ['Nasal', [0, 'm'], 0, 0, [0, 'n'], 0, 0, [0, 'ŋ'], 0],
+  ['Lateral Liquid', 0, 0, 0, [0, 'ɫ'], 0, 0, 0, 0],
+  ['Retroflex Liquid', 0, 0, 0, [0, 'ɹ'], 0, 0, 0, 0],
+  ['Glide', [0, 'w'], 0, 0, 0, 0, [0, 'j'], 0, 0],
 ];
-// Percent of the quad box: x = front→back, y = close→open.
+// Percent of the quad drawing area: x = front→back, y = close→open.
 export const VPOS = {
-  i: [12, 7], 'ɪ': [19, 23], 'ɛ': [27, 50], 'æ': [34, 81], 'ə': [49, 44], 'ɝ': [51, 64],
+  i: [14, 8], 'ɪ': [19, 23], 'ɛ': [27, 50], 'æ': [34, 81], 'ə': [49, 44], 'ɝ': [51, 64],
   u: [90, 7], 'ʊ': [82, 23], 'ɔ': [88, 58], 'ɑ': [77, 87],
 };
-// [phoneme, start point, glide target] — drawn as an arrow, as on a diphthong chart.
+// [phoneme, start point, glide target] — drawn as an arrow, as on the diphthong chart.
 export const DIPHS = [
   ['eɪ', [11, 48], 'ɪ'], ['aɪ', [67, 88], 'ɪ'], ['ɔɪ', [90, 56], 'ɪ'],
   ['oʊ', [93, 40], 'ʊ'], ['aʊ', [86, 88], 'ʊ'],
@@ -175,29 +174,44 @@ function chartKeys(kb, best) {
 
 function consChart(best) {
   const wrap = el('div', 'chart');
-  wrap.appendChild(el('div', 'chart-head', 'Consonants'));
   const g = el('div', 'cgrid');
-  g.appendChild(el('div', 'clabel'));
-  for (const [abbr, full] of PLACES) {
-    const h = el('div', 'chead', abbr);
-    h.title = full;
-    g.appendChild(h);
-  }
-  for (const [manner, ...cells] of CONS_GRID) {
+  // Corner cell with the reference's diagonal, spanning both axis-label columns.
+  g.appendChild(el('div', 'ccorner'));
+  g.appendChild(el('div', 'ctitle', 'Place of Articulation'));
+  for (const name of PLACES) g.appendChild(el('div', 'chead', name));
+  g.appendChild(el('div', 'caxis', 'Manner of Articulation'));
+  for (const [manner, ...places] of CONS_GRID) {
     g.appendChild(el('div', 'clabel', manner));
-    for (const cell of cells) {
-      const c = el('div', 'ccell');
-      for (const p of cell) c.appendChild(mkKey(p, best));
-      g.appendChild(c);
+    for (const pair of places) {
+      // Voiceless sub-column then voiced, empty cells included — the grid is the chart.
+      for (const p of (pair || [0, 0])) {
+        const c = el('div', 'ccell');
+        if (p) c.appendChild(mkKey(p, best));
+        g.appendChild(c);
+      }
     }
   }
   wrap.appendChild(g);
+  const legend = el('div', 'clegend', 'State of the Glottis:');
+  legend.appendChild(el('span', null, 'Voiceless'));
+  legend.appendChild(el('span', null, 'Voiced'));
+  wrap.appendChild(legend);
   return wrap;
 }
 
-// Quad box is 460x230 units with a 30-unit gutter on top for the column labels;
-// aspect-ratio in the CSS matches, so percent coords and viewBox units line up.
+/* The quad drawing area is 460x230 units. The viewBox adds gutters for the
+   axis labels and the round box, which overhangs the chart on the reference.
+   Percent positions are derived from the same numbers, so the keys, the
+   trapezoid and the arrowheads cannot drift apart. */
+const VB = { x: -40, y: -32, w: 544, h: 292 };
 const U = ([x, y]) => [x * 4.6, y * 2.3];
+const pct = (p) => {
+  const [x, y] = U(p);
+  return [((x - VB.x) / VB.w) * 100, ((y - VB.y) / VB.h) * 100];
+};
+// Left edge of the trapezoid runs (36.8,0) to (128.8,230); it slants 0.4 units right per unit down.
+const EDGE = y => 36.8 + 0.4 * y;
+const SLANT = (Math.atan2(230, 92) * 180) / Math.PI;
 
 function vowelChart(best) {
   const wrap = el('div', 'chart');
@@ -210,19 +224,30 @@ function vowelChart(best) {
   wrap.appendChild(head);
 
   const quad = el('div', 'quad');
-  const lines = S.vowels === 'di' ? DIPHS.map(([, from, to]) => arrow(from, VPOS[to])).join('') : '';
-  quad.innerHTML = `<svg viewBox="0 -30 460 260" aria-hidden="true">
+  const arrows = S.vowels === 'di' ? DIPHS.map(([, from, to]) => arrow(from, VPOS[to])).join('') : '';
+  // High/Mid/Low sit outside the slanted edge, turned to run along it.
+  const heights = ['High', 'Mid', 'Low'].map((t, i) => {
+    const y = 38 + i * 76.6;
+    return `<text transform="translate(${EDGE(y) - 17} ${y + 7}) rotate(${SLANT})">${t}</text>`;
+  }).join('');
+
+  quad.innerHTML = `<svg viewBox="${VB.x} ${VB.y} ${VB.w} ${VB.h}" aria-hidden="true">
     <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5"
       orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-    <g fill="currentColor" font-size="12" text-anchor="middle">
-      <text x="110" y="-11">Front</text><text x="253" y="-11">Central</text><text x="391" y="-11">Back</text>
+    <g fill="currentColor" font-size="13" text-anchor="middle">
+      <text x="110" y="-18">Front</text><text x="253" y="-18">Central</text><text x="391" y="-18">Back</text>
+      <g font-size="11">${heights}
+        <text x="250" y="209">Lax</text><text x="250" y="248">Tense</text>
+        <text transform="translate(496 84) rotate(90)">Round</text>
+      </g>
     </g>
-    <g fill="none" stroke="currentColor" stroke-width="1.5">
-      <path d="M36.8 0 H460 V230 H128.8 Z"/>
-      <path d="M67 76 H460 M98 153 H460" stroke-width=".75"/>
-      <path d="M184 0 V230 M322 0 V230" stroke-width=".75"/>
+    <g fill="none" stroke="currentColor">
+      <path d="M36.8 0 H460 V230 H128.8 Z" stroke-width="1.8"/>
+      <path d="M67.2 76 H460 M98.2 153 H460 M184 0 V230 M322 0 V230" stroke-width=".7"/>
+      <path d="M78 32 H437 V214 H133 Z" stroke-width="1" stroke-dasharray="1 3"/>
+      <path d="M322 -6 H486 V162 H322" stroke-width="1" stroke-dasharray="7 5"/>
     </g>
-    <g stroke="currentColor" stroke-width="1.6" marker-end="url(#ar)">${lines}</g>
+    <g stroke="currentColor" stroke-width="1.6" marker-end="url(#ar)">${arrows}</g>
   </svg>`;
 
   if (S.vowels === 'mono') {
@@ -233,7 +258,7 @@ function vowelChart(best) {
   }
   wrap.appendChild(quad);
   wrap.appendChild(el('div', 'chart-foot', S.vowels === 'mono'
-    ? 'front → back across, close → open down'
+    ? 'solid box: tense · dotted box: lax · dashed box: rounded'
     : 'arrows show the glide; ɪ and ʊ are the targets'));
   return wrap;
 }
@@ -246,10 +271,10 @@ function arrow(from, to) {
   return `<line x1="${x1 + dx * a}" y1="${y1 + dy * a}" x2="${x2 - dx * b}" y2="${y2 - dy * b}"/>`;
 }
 
-function place(node, [x, y]) {
-  // Top offset folds in the 30-unit label gutter: 30/260 of the box.
-  node.style.left = x + '%';
-  node.style.top = (11.54 + y * 0.8846) + '%';
+function place(node, p) {
+  const [left, top] = pct(p);
+  node.style.left = left + '%';
+  node.style.top = top + '%';
   return node;
 }
 

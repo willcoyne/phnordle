@@ -92,7 +92,7 @@ select { background:var(--bg); }
 .key.x { background:var(--gray); color:var(--mark-fg); opacity:.55; }
 
 /* ---------- IPA chart layout ---------- */
-#keyboard.chart { width:100%; max-width:680px; align-items:stretch; }
+#keyboard.chart { width:100%; max-width:700px; align-items:stretch; }
 .ktabs { display:flex; gap:6px; }
 .ktabs button {
   font:inherit; font-size:11px; padding:2px 8px; border:1px solid var(--line); border-radius:4px;
@@ -102,23 +102,44 @@ select { background:var(--bg); }
 
 .chart { width:100%; overflow-x:auto; }
 .chart-head {
-  display:flex; align-items:center; gap:10px; margin:2px 0 4px;
+  display:flex; align-items:center; gap:10px; margin:6px 0 4px;
   font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);
 }
 .chart-foot { font-size:10px; color:var(--muted); text-align:center; margin-top:2px; }
-.chart .key { min-width:34px; padding:3px 4px 2px; }
+.chart .key { min-width:30px; padding:3px 3px 2px; border-radius:2px; }
 .chart .key .sym { font-size:15px; }
 .chart .key .eg { font-size:7px; }
 
+/* Ruled like the reference: every place split into voiceless | voiced. */
 .cgrid {
-  display:grid; grid-template-columns:auto repeat(8, 1fr); gap:2px; min-width:620px;
+  display:grid; grid-template-columns:auto auto repeat(16, 1fr);
+  min-width:680px; border:1px solid var(--fg);
 }
-.chead, .clabel { font-size:9px; color:var(--muted); display:flex; align-items:center; }
-.chead { justify-content:center; text-align:center; border-bottom:1px solid var(--line); padding-bottom:3px; }
-.clabel { padding-right:6px; white-space:nowrap; }
-.ccell { display:flex; gap:2px; justify-content:center; border-left:1px solid var(--line); }
+.cgrid > * { border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+.ccorner {
+  grid-row:span 2; grid-column:span 2;
+  background:linear-gradient(to bottom right, transparent calc(50% - .5px), var(--line) calc(50% - .5px), var(--line) calc(50% + .5px), transparent calc(50% + .5px));
+}
+.ctitle {
+  grid-column:span 16; text-align:center; font-size:11px; font-weight:700;
+  letter-spacing:.04em; padding:3px 0;
+}
+.chead {
+  grid-column:span 2; font-size:9px; color:var(--muted);
+  display:flex; align-items:center; justify-content:center; text-align:center; padding:2px 1px;
+}
+.caxis {
+  grid-row:span 7; writing-mode:vertical-rl; transform:rotate(180deg);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; letter-spacing:.04em; padding:0 2px;
+}
+.clabel { font-size:9px; color:var(--muted); display:flex; align-items:center; padding:0 5px 0 4px; white-space:nowrap; }
+.ccell { display:flex; align-items:center; justify-content:center; min-height:26px; }
+.clegend { display:flex; gap:0; align-items:center; justify-content:center; font-size:10px; color:var(--muted); margin-top:4px; }
+.clegend span { border:1px solid var(--fg); color:var(--fg); padding:1px 14px; margin-left:6px; }
+.clegend span + span { margin-left:0; border-left:none; }
 
-.quad { position:relative; width:100%; max-width:560px; aspect-ratio:460/260; margin:6px auto 0; }
+.quad { position:relative; width:100%; max-width:600px; aspect-ratio:544/292; margin:2px auto 0; }
 .quad svg { position:absolute; inset:0; width:100%; height:100%; color:var(--muted); }
 .quad .key, .qghost { position:absolute; transform:translate(-50%,-50%); }
 .qghost { font-size:20px; font-weight:700; color:var(--muted); }
