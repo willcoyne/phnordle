@@ -17,3 +17,7 @@ Mode 3- Endless play Hard/Advanced
 I got the wordlist from https://github.com/open-dict-data/ipa-dict so make sure that is credited somehow.
 
 Should have a similar theme to wordle, but use something like http://ascii.krackeddevs.com/ so you can get cool themes and such.
+
+Make the code simple. This should be able to be done entirely frontend, so it can be publically hosted on github pages. Feel free to use React / Node.js or that kinda thing.
+
+
